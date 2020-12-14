@@ -34,7 +34,7 @@ while True:
     )
     for (x, y, w, h) in faces:
         if x <= 240 and x >= 220:
-            detected = True
+            #detected = True
             print('detected')
             #bot.drive_stop()
         else:
