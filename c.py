@@ -1,18 +1,25 @@
 import cv2
 import sys
-from  pycreate2 import Create2
+from  pycreate2 import Create2 as meme
 import time
-port = "COM7"  # what is your serial port?
-#bot = Create2(port)
-# Start the Create 2
+from playsound import playsound
+import requests
+import random as rand
+port = "COM7"
+#bot = meme(port)
 #bot.start()
 #bot.safe()
 faceCascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 video_capture = cv2.VideoCapture(0)
+def speak(text, filename, speed = 1, lang = 'en-US'):
+        speed = str(speed)
+        url = u"https://translate.google.com/translate_tts?ie=UTF-8&q=" + text + "%21&tl=" + lang + "&ttsspeed=" + speed + "&total=1&idx=0&client=tw-ob&textlen=14&tk=594228.1040269"
+        r = requests.get(url)
+        with open(filename, 'wb') as test:
+            test.write(r.content)
 thereface = True
 img_counter = 0
 detected = False
-
 onetime = True
 while True:
     ret, frame = video_capture.read()
@@ -27,7 +34,7 @@ while True:
     )
     for (x, y, w, h) in faces:
         if x <= 240 and x >= 220:
-            #detected = True
+            detected = True
             print('detected')
             #bot.drive_stop()
         else:
@@ -41,11 +48,23 @@ while True:
                     #turn print("left")
                     #bot.drive_direct(25, -25)
             if detected == True:
-                on = False
+                on = True
                 if on == True:
+                    wordchoice = rand.randrange(0, 5)
+                    if wordchoice == 1:
+                        playsound('words.mp3')
+                        wordchoice = 0
+                    if wordchoice == 2:
+                        playsound('words1.mp3')
+                        wordchoice = 0
+                    if wordchoice == 3:
+                        playsound('words2.mp3')
+                        wordchoice = 0
+                    if wordchoice == 4:
+                        playsound('words3.mp3')
+                        wordchoice = 0
                     print("RAMM")
                     #bot.drive_direct(-100, -100)
-                    time.sleep(5)
                     #bot.drive_stop()
                     #bot.close()
                     break
@@ -56,3 +75,4 @@ while True:
         break
 video_capture.release()
 cv2.destroyAllWindows()
+
