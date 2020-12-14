@@ -24,6 +24,19 @@ thereface = True
 img_counter = 0
 detected = False
 onetime = True
+
+
+
+
+
+
+
+
+
+
+
+
+
 while True:
     ret, frame = cap.read()
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -42,11 +55,11 @@ while True:
             #bot.drive_stop()
         else:
             if detected != True:
-                if x >= 200:
+                if x >= 100:
                     print("left")
                     #turn print("right")
                     #bot.drive_direct(-25, 25)
-                if x <= 165:
+                if x <= 90:
                     print("right")
                     #turn print("left")
                     #bot.drive_direct(25, -25)
@@ -61,6 +74,11 @@ while True:
                     break
     for (x, y, w, h) in faces:
         cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
+    #cv2.imshow('FaceDetection', frame)
+    h, w = frame.shape[0:2]
+    neww = 800
+    newh = int(neww*(h/w))
+    img = cv2.resize(frame, (neww, newh))
     cv2.imshow('FaceDetection', frame)
     if k%256 == 27: #ESC Pressed
         break
