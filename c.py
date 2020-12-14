@@ -39,11 +39,11 @@ while True:
             #bot.drive_stop()
         else:
             if detected != True:
-                if x >= 200:
+                if x >= 240:
                     print("left")
                     #turn print("right")
                     #bot.drive_direct(-25, 25)
-                if x <= 165:
+                if x <= 220:
                     print("right")
                     #turn print("left")
                     #bot.drive_direct(25, -25)
