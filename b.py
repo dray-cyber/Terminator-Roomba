@@ -6,9 +6,9 @@ from playsound import playsound
 import requests
 import random as rand
 port = "COM7"
-#bot = meme(port)
-#bot.start()
-#bot.safe()
+bot = meme(port)
+bot.start()
+bot.safe()
 faceCascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 video_capture = cv2.VideoCapture(0)
 def speak(text, filename, speed = 1, lang = 'en-US'):
@@ -36,17 +36,17 @@ while True:
         if x <= 280 and x >= 270:
             detected = True
             print('detected')
-            #bot.drive_stop()
+            bot.drive_stop()
         else:
             if detected != True:
                 if x >= 280:
                     print("left")
                     #turn print("right")
-                    #bot.drive_direct(-25, 25)
+                    bot.drive_direct(-25, 25)
                 if x <= 270:
                     print("right")
                     #turn print("left")
-                    #bot.drive_direct(25, -25)
+                    bot.drive_direct(25, -25)
             if detected == True:
                 on = True
                 if on == True:
@@ -64,9 +64,10 @@ while True:
                         playsound('words3.mp3')
                         wordchoice = 0
                     print("RAMM")
-                    #bot.drive_direct(-100, -100)
-                    #bot.drive_stop()
-                    #bot.close()
+                    bot.drive_direct(-100, -100)
+                    time.sleep(2)
+                    bot.drive_stop()
+                    bot.close()
                     break
     for (x, y, w, h) in faces:
         cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
