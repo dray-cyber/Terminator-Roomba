@@ -9,6 +9,9 @@ import sys
 from  pycreate2 import Create2
 import time
 from time import time
+import requests
+import random as rand
+from playsound import playsound
 port = "COM7"  # what is your serial port?
 #bot = Create2(port)
 # Start the Create 2
@@ -24,20 +27,16 @@ thereface = True
 img_counter = 0
 detected = False
 onetime = True
-
-
-
-
-
-
-
-
-
-
-
-
-
+def speak(text, filename, speed = 1, lang = 'en-US'):
+        speed = str(speed)
+        url = u"https://translate.google.com/translate_tts?ie=UTF-8&q=" + text + "%21&tl=" + lang + "&ttsspeed=" + speed + "&total=1&idx=0&client=tw-ob&textlen=14&tk=594228.1040269"
+        r = requests.get(url)
+        with open(filename, 'wb') as test:
+            test.write(r.content)
 while True:
+    if time() - t >= 2.5:
+        sock.sendto("_GPHD_:0:0:2:0.000000\n".encode(), ("10.5.5.9", 8554))
+        t=time()
     ret, frame = cap.read()
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     k = cv2.waitKey(1)
@@ -49,36 +48,46 @@ while True:
         flags=cv2.CASCADE_SCALE_IMAGE
     )
     for (x, y, w, h) in faces:
-        if x <= 240 and x >= 220:
-            #detected = True
+        if x <= 280 and x >= 270:
+            detected = True
             print('detected')
             #bot.drive_stop()
         else:
             if detected != True:
-                if x >= 100:
+                if x >= 280:
                     print("left")
                     #turn print("right")
                     #bot.drive_direct(-25, 25)
-                if x <= 90:
+                if x <= 270:
                     print("right")
                     #turn print("left")
                     #bot.drive_direct(25, -25)
             if detected == True:
-                on = False
+                on = True
                 if on == True:
+                    wordchoice = rand.randrange(0, 5)
+                    if wordchoice == 1:
+                        playsound('words.mp3')
+                        wordchoice = 0
+                    if wordchoice == 2:
+                        playsound('words1.mp3')
+                        wordchoice = 0
+                    if wordchoice == 3:
+                        playsound('words2.mp3')
+                        wordchoice = 0
+                    if wordchoice == 4:
+                        playsound('words3.mp3')
+                        wordchoice = 0
                     print("RAMM")
                     #bot.drive_direct(-100, -100)
-                    time.sleep(5)
                     #bot.drive_stop()
                     #bot.close()
                     break
     for (x, y, w, h) in faces:
         cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
-    #cv2.imshow('FaceDetection', frame)
-    h, w = frame.shape[0:2]
-    neww = 800
-    newh = int(neww*(h/w))
-    img = cv2.resize(frame, (neww, newh))
+    cv2.imshow('FaceDetection', frame)
+    for (x, y, w, h) in faces:
+        cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
     cv2.imshow('FaceDetection', frame)
     if k%256 == 27: #ESC Pressed
         break
