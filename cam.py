@@ -1,18 +1,23 @@
 import cv2
-from playsound import playsound
 import time
 import threading
 import queue
+import serial
 q = queue.Queue()
-url = "rtsp://admin:e@192.168.0.246:554/tmpfs/auto.jpg"
-cap = cv2.VideoCapture(url)
-#url = "rtsp://admin:e@192.168.0.20:554/tmpfs/auto.jpg"
-#cap = cv2.VideoCapture(0)
 faceCascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+
+
+url = "rtsp://admin:e@192.168.0.246:554/tmpfs/auto.jpg"
+#cap = cv2.VideoCapture(url)
+#url = "rtsp://admin:e@192.168.0.20:554/tmpfs/auto.jpg"
+#cap = cv2.VideoCapture("udp://10.5.5.9:8554")
+cap = cv2.VideoCapture(0)
 def detection():
+    ser = serial.Serial(int(input("port")), 9600)
     while True:
         try:
             if q.get() is not None:
+                face = None
                 output = q.get()
                 gray = cv2.cvtColor(output, cv2.COLOR_BGR2GRAY)
                 faces = faceCascade.detectMultiScale(
@@ -30,11 +35,14 @@ def detection():
                     wi = width // 2 
                     if wi < face:
                         print("right")
+                        ser.write(input_value.encode(3))
                     if wi > face:
                         print("left")
+                        ser.write(input_value.encode(1))
                     if wi - 20 < face and face < wi + 20:
                         print("middle, fire")
-                        playsound('beep.mp3')
+                        ser.write(input_value.encode(2))
+                        face = None
         except:
             potato = "potato" 
 def first():
@@ -48,6 +56,8 @@ def first():
             k = cv2.waitKey(1)
             q.put(output)
             cv2.imshow('FaceDetection', output)
+#def servo():
+    #need to work on this
 x = threading.Thread(target=first)
 x.start()
 c = threading.Thread(target=detection)
