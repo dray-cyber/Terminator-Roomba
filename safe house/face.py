@@ -48,7 +48,7 @@ while True:
                     #turn print("left")
                     #bot.drive_direct(25, -25)
             if detected == True:
-                on = True
+                on = False
                 if on == True:
                     wordchoice = rand.randrange(0, 5)
                     if wordchoice == 1:

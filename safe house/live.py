@@ -8,9 +8,9 @@ from  pycreate2 import Create2 as roomba
 import time as te
 from time import time
 port = "COM7"
-bot = roomba(port)
-bot.start()
-bot.safe()
+#bot = roomba(port)
+#bot.start()
+#bot.safe()
 faceCascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 gpCam = GoProCamera.GoPro()
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
