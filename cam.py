@@ -3,6 +3,13 @@ import time
 import threading
 import queue
 import serial
+import struct
+global direction
+direction = 1
+home = 180
+past = 0
+sere = '\r\n'
+sender = sere.encode('utf_8')
 q = queue.Queue()
 faceCascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 #url = "rtsp://admin:e@192.168.0.246:554/tmpfs/auto.jpg"
@@ -16,6 +23,7 @@ cap = cv2.VideoCapture(0)
 #cap = cv2.VideoCapture("udp://localhost:10000")
 #cap = cv2.VideoCapture("udp://10.5.5.100:8554")
 print("capture initiated")
+ser = serial.Serial("COM8", 9600)
 def first():
         while True:
             ret, frame = cap.read()
@@ -40,12 +48,41 @@ def first():
                 cv2.line(output, (0,hi), (width,hi),(0,255,0),1) 
                 cv2.imshow('FaceDetection', output)
                 q.put(output)
-def send(drive, ser):
-        s = ser
-        s.write(drive.encode())
+def usb(steps):
+        global sere
+        global sender
+        if steps < 1:
+                #steps = steps * -1
+                e = str(401).encode('utf_8')
+                #ser.write(e + sender)
+        #e = str(400).encode('utf_8')
+        #ser.write(e + sender)
+        e = str(steps).encode('utf_8')
+        ser.write(e + sender)
+def send(drive):
+        global past
+        global direction
+        #checks how many steps are needed to move from last position to new positionb
+        current = drive
+        neg = past - 1
+        pos = past + 1
+        print(past, neg, pos)
+        if current != past:
+                if current > pos or current < neg:
+                        print("tracking")
+                        needtogo = current - past
+                        usb(needtogo)
+        past = drive
+        #s.write(drive.encode())
         #does final checks and some changes before sending it through serial to a ardunio
 def detection():
-    #ser = serial.Serial("COM11", 9600)
+    #b'200\r\n'
+    #ser = 1
+    #supposed recipe for sending
+    #    sere = '\r\n'
+    #    sender = sere.encode('utf_8')
+    #    e = str(200).encode('utf_8')
+    #    ser.write(e + sender)
     while True:
         try:
             if q.get() is not None:
@@ -61,7 +98,7 @@ def detection():
                 )   
                 if faces is not None:
                     for (x, y, w, h) in faces:
-                        face = y+h * .5
+                        face = w+x * .5
                     (height, width) = output.shape[:2]
                     wi = width // 2
                     hi = height // 2
@@ -72,22 +109,22 @@ def detection():
                     #to get stepper rotation per pixel,
                     #divide height by the total number of steps
                     #thats how many steps you have to take for pixel
-                    spp = height // 200
-                    if face > hi:
+                    spp = height // 200 / 4
+                    if face > wi:
                         #tell how many pixels above
                         needed = face-hi
-                        rotate = needed * 1.8
+                        rotate = needed * spp
                         drive = round(rotate)
-                        print("-" + str(drive))
+                        #print("-" + str(drive))
                         #stepper go down
-                        #send(drive, ser)
-                    if face < hi:
+                        send(drive)
+                    if face < wi:
                         #tell how many pixels below
                         needed = hi-face
-                        rotate = needed * 1.8
+                        rotate = needed * spp
                         drive = round(rotate)
-                        print("+" + str(drive))
-                        #send(drive, ser)
+                        #print("+" + str(drive))
+                        send(drive)
                         #stepper go up
                     
         except:
