@@ -36,20 +36,37 @@ def first():
                 cv2.line(output, (0,hi), (width,hi),(0,255,0),1) 
                 cv2.imshow('FaceDetection', output)
                 q.put(output)
+past = 0
+sere = '\r\n' 
+sender = sere.encode('utf_8')
+dir1 = str(400).encode('utf_8')
+dir2 = str(401).encode('utf_8')
 def prep(steps):
         global past
         global current
+        global sender
+        global dir1
+        global dir2
+        global stepstaken
+        #need overcome overstepping
         sere = '\r\n'
         current = steps
-        neg = past - 1
-        pos = past + 1
+        neg = past - 5 # tolerance 
+        pos = past + 5 # tolerance
+        needed = current - past
+        print(needed, steps)
         if current != past:
-                if current > pos or current < neg:
-                        if steps > 1:
-                                sender = sere.encode('utf_8')
-                                e = str(steps).encode('utf_8')
-                                ser.write(e + sender)
+                if steps > 0:
+                        serialsteps = str(needed).encode('utf_8')
+                        ser.write(dir1 + sender)
+                        ser.write(serialsteps + sender)
+                if steps < 0:
+                        needed = needed * -1
+                        serialstepss = str(needed).encode('utf_8')
+                        ser.write(dir2 + sender)
+                        ser.write(serialstepss + sender)
         past = steps
+
 def detection():
     global past
     global current

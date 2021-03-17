@@ -48,32 +48,35 @@ def first():
                 cv2.line(output, (0,hi), (width,hi),(0,255,0),1) 
                 cv2.imshow('FaceDetection', output)
                 q.put(output)
-def usb(steps):
-        global sere
-        global sender
-        if steps < 1:
-                #steps = steps * -1
-                e = str(401).encode('utf_8')
-                #ser.write(e + sender)
-        #e = str(400).encode('utf_8')
-        #ser.write(e + sender)
-        e = str(steps).encode('utf_8')
-        ser.write(e + sender)
-def send(drive):
+sere = '\r\n' #still don't understand why but it does not work without this.
+sender = sere.encode('utf_8')
+dir1 = str(400).encode('utf_8')
+dir2 = str(401).encode('utf_8')
+def send(steps):
         global past
-        global direction
-        #checks how many steps are needed to move from last position to new positionb
-        current = drive
-        neg = past - 1
-        pos = past + 1
-        print(past, neg, pos)
+        global current
+        global sender
+        global dir1
+        global dir2
+        global stepstaken
+        #need overcome overstepping
+        sere = '\r\n'
+        current = steps
+        neg = past - 5 # tolerance 
+        pos = past + 5 # tolerance
+        needed = current - past
+        print(needed, steps)
         if current != past:
-                if current > pos or current < neg:
-                        print("tracking")
-                        needtogo = current - past
-                        usb(needtogo)
-        past = drive
-        #s.write(drive.encode())
+                if needed > 0:
+                        serialsteps = str(needed).encode('utf_8')
+                        ser.write(dir1 + sender)
+                        ser.write(serialsteps + sender)
+                if needed < 0:
+                        needed = needed * -1
+                        serialstepss = str(needed).encode('utf_8')
+                        ser.write(dir2 + sender)
+                        ser.write(serialstepss + sender)
+        past = steps
         #does final checks and some changes before sending it through serial to a ardunio
 def detection():
     #b'200\r\n'
@@ -84,7 +87,6 @@ def detection():
     #    e = str(200).encode('utf_8')
     #    ser.write(e + sender)
     while True:
-        try:
             if q.get() is not None:
                 face = None
                 output = q.get()
@@ -109,26 +111,24 @@ def detection():
                     #to get stepper rotation per pixel,
                     #divide height by the total number of steps
                     #thats how many steps you have to take for pixel
-                    spp = height // 200 / 4
-                    if face > wi:
-                        #tell how many pixels above
-                        needed = face-hi
-                        rotate = needed * spp
-                        drive = round(rotate)
-                        #print("-" + str(drive))
-                        #stepper go down
-                        send(drive)
-                    if face < wi:
-                        #tell how many pixels below
-                        needed = hi-face
-                        rotate = needed * spp
-                        drive = round(rotate)
-                        #print("+" + str(drive))
-                        send(drive)
-                        #stepper go up
-                    
-        except:
-            potato = "potato"
+                    pps = width / 198
+                    if face is not None:
+                            if face > wi:
+                                #tell how many pixels above
+                                needed = face-hi
+                                steps = round(face / pps)
+                                drive = round(steps)
+                                print("-" + str(drive))
+                                #stepper go down
+                                send(drive)
+                            if face < wi:
+                                #tell how many pixels below
+                                needed = hi-face
+                                steps = round(face / pps)
+                                drive = round(steps)
+                                print("+" + str(drive))
+                                send(drive)
+                                #stepper go up
 x = threading.Thread(target=first)
 x.start()
 c = threading.Thread(target=detection)
